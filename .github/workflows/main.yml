@@ -1,0 +1,45 @@
+ame: SYNC
+env:
+  USER_NAME: Carsten Ziegeler
+  USER_EMAIL: cziegele@adobe.com
+  PROJECT_DIR: wknd
+  MAIN_REPOSITORY: cziegeler/wknd-all
+ 
+# Only run on a push to this branch
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout this project into a sub folder
+      - uses: actions/checkout@v2
+        with:
+          path: sub
+      # Cleanup sub project
+      - name: Clean project
+        run: |
+          rm -rf sub/.git
+          rm -rf sub/.github
+      # Set global git configuration
+      - name: Set git config
+        run: |
+          git config --global credential.helper cache
+          git config --global user.email ${USER_EMAIL}
+          git config --global user.name ${USER_NAME}
+      # Checkout the main project
+      - name: Checkout main project
+        run: 
+          git clone https://${{ secrets.PAT }}@github.com/${MAIN_REPOSITORY}.git main
+      # Move sub project
+      - name: Move project to main
+        run:
+          mv sub main/${PROJECT_DIR}
+      - name: Commit Changes
+        run: |        
+          git -C main add .
+          git -C main commit -m "Update wknd"
+          git -C main push
