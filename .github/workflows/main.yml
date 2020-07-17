@@ -22,7 +22,7 @@ jobs:
       # Cleanup sub project
       - name: Clean project
         run: |
-          git -C sub log --format="%s" -n 1 > commit.txt
+          git -C sub log --format="%an : %s" -n 1 > commit.txt
           rm -rf sub/.git
           rm -rf sub/.github
       # Set global git configuration
